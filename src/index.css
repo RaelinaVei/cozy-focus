@@ -38,16 +38,6 @@
     --ring: 0 0% 15%;
     --radius: 1rem;
 
-    /* Glass tokens */
-    --glass-bg: 0 0% 100% / 0.75;
-    --glass-border: 0 0% 100% / 0.3;
-    --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 0%, 0.1);
-    --glass-blur: 16px;
-
-    /* Timer-specific */
-    --timer-text: 0 0% 100%;
-    --timer-overlay: 0 0% 0% / 0.25;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -87,13 +77,6 @@
     --input: 0 0% 18%;
     --ring: 0 0% 83%;
 
-    --glass-bg: 0 0% 10% / 0.7;
-    --glass-border: 0 0% 100% / 0.1;
-    --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 0%, 0.3);
-
-    --timer-text: 0 0% 100%;
-    --timer-overlay: 0 0% 0% / 0.4;
-
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -122,19 +105,29 @@
 
 @layer components {
   .glass {
-    background: hsla(var(--glass-bg));
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid hsla(var(--glass-border));
-    box-shadow: var(--glass-shadow);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
 
   .timer-text {
-    color: hsl(var(--timer-text));
-    text-shadow: 0 2px 20px hsla(0, 0%, 0%, 0.3);
+    color: #ffffff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
   }
 
   .theme-overlay {
-    background: hsla(var(--timer-overlay));
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .dark .theme-overlay {
+    background: rgba(0, 0, 0, 0.4);
   }
 }
