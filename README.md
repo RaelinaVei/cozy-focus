@@ -2,8 +2,9 @@
 
 A beautiful, minimalist Pomodoro timer designed to help you stay focused in a cozy environment. Built with Lovable and powered by modern web technologies.
 
-![Uploading image.png…]()
-![Uploading image.png…]()
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/ad33f187-7217-4a68-8232-0c2a3e69922c" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/d53e500d-5d60-4e82-bfcb-b45c7a7ace4f" />
+
 
 
 ## 🚀 Free Live Website!
