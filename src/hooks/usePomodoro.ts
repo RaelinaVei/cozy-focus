@@ -3,29 +3,32 @@ import { useState, useEffect, useCallback, useRef } from "react";
 const playNotificationSound = (type: "focus" | "break") => {
   try {
     const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
+
+    const playTone = (freq: number, start: number, duration: number, vol: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + duration);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration);
+    };
+
     if (type === "break") {
-      // Gentle chime for break
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-      osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.3); // G5
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
+      // Pleasant ascending chime — loud & clear
+      playTone(523.25, 0, 0.4, 0.8);    // C5
+      playTone(659.25, 0.2, 0.4, 0.8);  // E5
+      playTone(783.99, 0.4, 0.5, 0.9);  // G5
+      playTone(1046.5, 0.6, 0.6, 0.7);  // C6
     } else {
-      // Upbeat tone for focus
-      osc.frequency.setValueAtTime(783.99, ctx.currentTime); // G5
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime + 0.3); // C5
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
+      // Energetic descending chime — attention-grabbing
+      playTone(1046.5, 0, 0.4, 0.9);    // C6
+      playTone(783.99, 0.2, 0.4, 0.8);  // G5
+      playTone(659.25, 0.4, 0.4, 0.8);  // E5
+      playTone(523.25, 0.6, 0.5, 0.7);  // C5
     }
   } catch (e) {
     // Audio not available
