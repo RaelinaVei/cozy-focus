@@ -4,13 +4,22 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Play, Pause, RotateCcw } from "lucide-react";
 import { LiveBackground } from "@/components/LiveBackground";
 
-const pad = (n: number) => Math.floor(n).toString().padStart(2, "0");
+const pad = (n: number) => Math.max(0, Math.floor(n)).toString().padStart(2, "0");
+
+const PRESETS = [
+  { label: "5m", s: 5 * 60 },
+  { label: "10m", s: 10 * 60 },
+  { label: "15m", s: 15 * 60 },
+  { label: "25m", s: 25 * 60 },
+  { label: "45m", s: 45 * 60 },
+  { label: "1h", s: 60 * 60 },
+];
 
 const Countdown = () => {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(5);
   const [seconds, setSeconds] = useState(0);
-  const [remaining, setRemaining] = useState(0); // seconds
+  const [remaining, setRemaining] = useState(0);
   const [total, setTotal] = useState(0);
   const [running, setRunning] = useState(false);
   const intervalRef = useRef<number | null>(null);
@@ -21,18 +30,15 @@ const Countdown = () => {
         setRemaining((r) => {
           if (r <= 1) {
             setRunning(false);
-            // simple beep
             try {
               const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
               const o = ctx.createOscillator();
               const g = ctx.createGain();
-              o.connect(g);
-              g.connect(ctx.destination);
+              o.connect(g); g.connect(ctx.destination);
               o.frequency.value = 880;
               g.gain.setValueAtTime(0.5, ctx.currentTime);
               g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
-              o.start();
-              o.stop(ctx.currentTime + 1);
+              o.start(); o.stop(ctx.currentTime + 1);
             } catch {}
             return 0;
           }
@@ -40,9 +46,7 @@ const Countdown = () => {
         });
       }, 1000);
     }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [running, remaining]);
 
   const start = () => {
@@ -54,12 +58,16 @@ const Countdown = () => {
     }
     setRunning(true);
   };
-
   const pause = () => setRunning(false);
-  const reset = () => {
+  const reset = () => { setRunning(false); setRemaining(0); setTotal(0); };
+
+  const applyPreset = (s: number) => {
     setRunning(false);
     setRemaining(0);
     setTotal(0);
+    setHours(Math.floor(s / 3600));
+    setMinutes(Math.floor((s % 3600) / 60));
+    setSeconds(s % 60);
   };
 
   const displaySecs = remaining > 0 ? remaining : hours * 3600 + minutes * 60 + seconds;
@@ -74,7 +82,7 @@ const Countdown = () => {
     <div className="relative min-h-screen w-full overflow-hidden">
       <LiveBackground variant="sunset" />
 
-      <div className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-5 py-4">
+      <div className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-4 sm:px-5 py-4">
         <Link to="/" className="glass rounded-full p-2.5 text-white hover:scale-110 transition-transform">
           <ArrowLeft className="w-4 h-4" />
         </Link>
@@ -82,10 +90,10 @@ const Countdown = () => {
         <div className="w-9" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-5 gap-8">
-        {/* Progress ring */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-5 gap-6 pt-20 pb-10">
+        {/* Progress ring + value */}
         <div className="relative">
-          <svg className="w-64 h-64 sm:w-80 sm:h-80 -rotate-90" viewBox="0 0 100 100">
+          <svg className="w-[260px] h-[260px] sm:w-80 sm:h-80 -rotate-90" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
             <motion.circle
               cx="50" cy="50" r="46" fill="none"
@@ -95,24 +103,41 @@ const Countdown = () => {
               transition={{ duration: 0.5 }}
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center px-4">
             {isEditing ? (
-              <div className="flex items-center gap-1 sm:gap-2 text-white">
+              <div className="flex items-end gap-1 text-white">
                 <NumberInput value={hours} onChange={setHours} max={23} label="hr" />
-                <span className="text-3xl sm:text-4xl opacity-60">:</span>
+                <span className="text-3xl sm:text-4xl opacity-60 pb-4">:</span>
                 <NumberInput value={minutes} onChange={setMinutes} max={59} label="min" />
-                <span className="text-3xl sm:text-4xl opacity-60">:</span>
+                <span className="text-3xl sm:text-4xl opacity-60 pb-4">:</span>
                 <NumberInput value={seconds} onChange={setSeconds} max={59} label="sec" />
               </div>
             ) : (
-              <div className="font-display font-bold text-white text-5xl sm:text-6xl tabular-nums">
-                {hours > 0 || parseInt(hh) > 0 ? `${hh}:` : ""}
+              <div className="font-display font-light text-white text-4xl sm:text-5xl tabular-nums tracking-tight"
+                style={{ letterSpacing: "-0.03em" }}>
+                {(hours > 0 || parseInt(hh) > 0) && `${hh}:`}
                 {mm}:{ss}
               </div>
             )}
           </div>
         </div>
 
+        {/* Presets */}
+        {isEditing && (
+          <div className="flex flex-wrap justify-center gap-2 max-w-sm">
+            {PRESETS.map((p) => (
+              <button
+                key={p.label}
+                onClick={() => applyPreset(p.s)}
+                className="glass rounded-full px-4 py-1.5 text-white text-xs font-display font-medium hover:scale-105 transition-transform"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Controls */}
         <div className="flex items-center gap-3">
           {!running ? (
             <button
@@ -155,8 +180,9 @@ const NumberInput = ({
         const n = parseInt(e.target.value) || 0;
         onChange(Math.min(max, Math.max(0, n)));
       }}
-      className="w-16 sm:w-20 bg-transparent font-display font-bold text-4xl sm:text-5xl text-center text-white outline-none tabular-nums
+      className="w-14 sm:w-20 bg-transparent font-display font-light text-3xl sm:text-5xl text-center text-white outline-none tabular-nums
         [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      style={{ letterSpacing: "-0.03em" }}
     />
     <span className="text-[10px] uppercase tracking-widest text-white/60">{label}</span>
   </div>

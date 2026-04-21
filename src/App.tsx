@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import FlipClock from "./pages/FlipClock.tsx";
 import Countdown from "./pages/Countdown.tsx";
 import Stopwatch from "./pages/Stopwatch.tsx";
+import Breathing from "./pages/Breathing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/flipclock" element={<FlipClock />} />
             <Route path="/countdown" element={<Countdown />} />
             <Route path="/stopwatch" element={<Stopwatch />} />
+            <Route path="/breathe" element={<Breathing />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
