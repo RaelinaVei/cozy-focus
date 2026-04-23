@@ -90,7 +90,14 @@ const FlipClock = () => {
     setRunning(true);
   };
   const pauseTimer = () => setRunning(false);
-  const resetTimer = () => { setRunning(false); setRemaining(0); };
+  const resetTimer = () => {
+    const totalSec = inH * 3600 + inM * 60 + inS;
+    if (totalSec > 0 && remaining > 0 && remaining < totalSec) {
+      recordPartial(totalSec - remaining);
+    }
+    setRunning(false);
+    setRemaining(0);
+  };
 
   // Determine if background reads as "light" (for text/UI contrast)
   const isLightBg = bg === "light" || LIGHT_GRADIENTS.includes(bg);
