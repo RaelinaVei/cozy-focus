@@ -25,17 +25,29 @@ function save(entries: DayEntry[]) {
   window.dispatchEvent(new Event("prismic-study-update"));
 }
 
-export function recordStudy(minutes: number) {
-  if (minutes <= 0) return;
+export function recordStudy(minutes: number, countAsSession: boolean = true) {
+  const m = Math.round(minutes);
+  if (m <= 0) return;
   const entries = loadHistory();
   const t = today();
   const idx = entries.findIndex((e) => e.date === t);
+  const inc = countAsSession ? 1 : 0;
   if (idx >= 0) {
-    entries[idx] = { ...entries[idx], minutes: entries[idx].minutes + minutes, sessions: entries[idx].sessions + 1 };
+    entries[idx] = {
+      ...entries[idx],
+      minutes: entries[idx].minutes + m,
+      sessions: entries[idx].sessions + inc,
+    };
   } else {
-    entries.push({ date: t, minutes, sessions: 1 });
+    entries.push({ date: t, minutes: m, sessions: inc });
   }
   save(entries);
+}
+
+/** Record partial focus time (e.g. user reset before completion). Adds minutes but does not bump session count. */
+export function recordPartial(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  if (mins >= 1) recordStudy(mins, false);
 }
 
 export function getStats() {
