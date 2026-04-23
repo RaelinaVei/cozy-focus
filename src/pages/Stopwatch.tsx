@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Play, Pause, RotateCcw, Flag } from "lucide-react";
 import { LiveBackground } from "@/components/LiveBackground";
 import { FullscreenButton } from "@/components/FullscreenButton";
+import { recordPartial } from "@/lib/studyTracker";
 
 const pad = (n: number, w = 2) => Math.floor(n).toString().padStart(w, "0");
 
