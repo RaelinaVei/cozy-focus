@@ -63,7 +63,14 @@ const Countdown = () => {
     setRunning(true);
   };
   const pause = () => setRunning(false);
-  const reset = () => { setRunning(false); setRemaining(0); setTotal(0); };
+  const reset = () => {
+    if (total > 0 && remaining > 0 && remaining < total) {
+      recordPartial(total - remaining);
+    }
+    setRunning(false);
+    setRemaining(0);
+    setTotal(0);
+  };
 
   const applyPreset = (s: number) => {
     setRunning(false);
